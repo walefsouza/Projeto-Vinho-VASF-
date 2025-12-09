@@ -1,75 +1,97 @@
+// ============================================================
+// FSM DE VEDAÇÃO — 2 ESTADOS (MOORE)
+
+// Responsável por detectar quando uma garrafa é vedada e gerar 
+// um pulso para decrementar o estoque de rolhas.
+// ============================================================
+
 module fsm_vedacao (
-    output GARRAFA_VEDADA,
-    output DECREMENTA_ROLHA,
+    // Saídas
+    output GARRAFA_VEDADA,       // Indica que a garrafa foi vedada (Moore)
+    output DECREMENTA_ROLHA,     // Pulso gerado ao vedar (subtração de estoque)
+
+    // Entradas
     input CLOCK,
     input RESET,
-    input GARRAFA_PRESENTE,
-    input ROLHAS_DISPONIVEIS
-	 // Sensor de vedação completa
+    input GARRAFA_CHEIA,         // Garrafa pronta para vedação
+    input GARRAFA_PRESENTE,      // Indica garrafa posicionada
+    input ROLHAS_DISPONIVEIS     // Evita vedação sem rolhas
 );
 
-    reg estado_atual;
-    reg estado_proximo;
-    
-    localparam NAO_VEDADA = 1'b0;
-    localparam VEDADA     = 1'b1;
-    
     // -------------------------------------------------------
-    // LÓGICA DE TRANSIÇÃO
+    // ESTADOS (Moore: 1 bit)
     // -------------------------------------------------------
+    localparam NAO_VEDADA = 1'b0;   // Garrafa ainda não vedada
+    localparam VEDADA     = 1'b1;   // Garrafa já recebeu a rolha
+
+    reg estado_atual, estado_proximo;
+    reg estado_anterior;            // Usado para gerar pulso de transição
+    reg flag_vedada;                // Indica vedação (saída de Moore)
+
+    assign GARRAFA_VEDADA = flag_vedada;
+
+    // -------------------------------------------------------
+    // LÓGICA DE TRANSIÇÃO DE ESTADOS 
+
     always @(*) begin
         case (estado_atual)
+
+            // -----------------------------------------------
+            // ESTADO: A garrafa ainda não foi vedada
+
             NAO_VEDADA: begin
-                // Só veda se TEM garrafa E TEM rolhas E sensor confirma
-                if (GARRAFA_PRESENTE && ROLHAS_DISPONIVEIS)
+                // Transita para "VEDADA" quando todas condições estão OK
+                if (GARRAFA_CHEIA && GARRAFA_PRESENTE && ROLHAS_DISPONIVEIS)
                     estado_proximo = VEDADA;
                 else
                     estado_proximo = NAO_VEDADA;
             end
-            
+
+            // -----------------------------------------------
+            // ESTADO: Garrafa já foi vedada
+
             VEDADA: begin
-                // Volta apenas quando garrafa SAI
-                // ROLHAS não importa mais aqui!
+                // Volta para "NAO_VEDADA" quando a garrafa sai
                 if (!GARRAFA_PRESENTE)
                     estado_proximo = NAO_VEDADA;
                 else
                     estado_proximo = VEDADA;
             end
+
+            default:
+                estado_proximo = NAO_VEDADA;
         endcase
     end
-    
+
     // -------------------------------------------------------
-    // FLIP-FLOP DE ESTADO
-    // -------------------------------------------------------
+    // REGISTRADORES DE ESTADO E LÓGICA DA FLAG DE VEDAÇÃO 
+
     always @(posedge CLOCK or posedge RESET) begin
-        if (RESET)
-            estado_atual <= NAO_VEDADA;
-        else
-            estado_atual <= estado_proximo;
+
+        if (RESET) begin
+            estado_atual    <= NAO_VEDADA;
+            estado_anterior <= NAO_VEDADA;
+            flag_vedada     <= 1'b0;
+
+        end else begin
+            estado_anterior <= estado_atual;
+            estado_atual    <= estado_proximo;
+
+            // Flag: ativa ao entrar em VEDADA
+            if (estado_atual == VEDADA) begin
+                flag_vedada <= 1'b1;
+            end
+
+            // Reseta quando a garrafa é removida
+            else if (!GARRAFA_PRESENTE) begin
+                flag_vedada <= 1'b0;
+            end
+        end
     end
-    
+
     // -------------------------------------------------------
-    // SAÍDAS (MOORE)
-    // -------------------------------------------------------
-    assign GARRAFA_VEDADA = (estado_atual == VEDADA);
-    
-    // Pulso na TRANSIÇÃO NAO_VEDADA → VEDADA
-    assign DECREMENTA_ROLHA = (estado_atual == NAO_VEDADA) && 
-                              (estado_proximo == VEDADA);
+    // PULSO PARA DECREMENTAR O ESTOQUE DE ROLHAS
+
+    assign DECREMENTA_ROLHA = (estado_anterior == NAO_VEDADA) && (estado_atual == VEDADA);
 
 endmodule
-
-
-/*// Na top-level, gerenciar o alarme:
-wire alarme_sem_rolha;
-wire motor_bloqueado;
-
-assign alarme_sem_rolha = !ROLHAS_DISPONIVEIS;
-
-// Motor só liga se START=1 E ROLHAS=1
-// Se ROLHAS=0 durante operação, motor para
-assign motor_bloqueado = (fsm_vedacao.estado_atual == NAO_VEDADA) && 
-                         (GARRAFA_PRESENTE) && 
-                         (!ROLHAS_DISPONIVEIS);
-
-assign LEDR[0] = alarme_sem_rolha || motor_bloqueado;*/

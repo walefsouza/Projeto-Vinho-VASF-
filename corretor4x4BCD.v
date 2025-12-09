@@ -4,21 +4,21 @@
 
 module comparador4x4BCD(S, A);
 
-  input [3:0] A;
-  output S;
+	input [3:0] A;
+	output S;
 
-  wire and0, and1;
-  //S = A2 A0 + A2 A1 + A3
+	wire and0, and1;
+	//S = A2 A0 + A2 A1 + A3
 
-  and And0(and0, A[2], A[0]);
-  and And1(and1, A[2], A[1]);
+	and And0(and0, A[2], A[0]);
+	and And1(and1, A[2], A[1]);
 
-  or OrFinalS(S, and0, and1, A[3]);
+	or OrFinalS(S, and0, and1, A[3]);
 
 endmodule
 
 // ==============================================================
-// Somador Completo 
+// Somador Completo de um bit
 
 module somadorbase (S, Co, A, B, Cin);
 
@@ -43,19 +43,19 @@ endmodule
 
 module somador4x4 (S, Co, A, B, Cin);
 
-    input [3:0] A, B; 
-    input Cin; 
-	 
-    output [3:0] S;
-    output Co;
-	 
-    wire c1, c2, c3;
+	input [3:0] A, B; 
+	input Cin; 
 
-    // Instanciando o somador de 1 bit para cada bit
-    somadorbase s0 (.A(A[0]), .B(B[0]), .Cin(Cin),  .S(S[0]), .Co(c1));
-    somadorbase s1 (.A(A[1]), .B(B[1]), .Cin(c1),   .S(S[1]), .Co(c2));
-    somadorbase s2 (.A(A[2]), .B(B[2]), .Cin(c2),   .S(S[2]), .Co(c3));
-    somadorbase s3 (.A(A[3]), .B(B[3]), .Cin(c3),   .S(S[3]), .Co(Co));
+	output [3:0] S;
+	output Co;
+
+	wire c1, c2, c3;
+
+	// Instanciando o somador de 1 bit para cada bit
+	somadorbase s0 (.A(A[0]), .B(B[0]), .Cin(Cin),  .S(S[0]), .Co(c1));
+	somadorbase s1 (.A(A[1]), .B(B[1]), .Cin(c1),   .S(S[1]), .Co(c2));
+	somadorbase s2 (.A(A[2]), .B(B[2]), .Cin(c2),   .S(S[2]), .Co(c3));
+	somadorbase s3 (.A(A[3]), .B(B[3]), .Cin(c3),   .S(S[3]), .Co(Co));
 
 endmodule
 

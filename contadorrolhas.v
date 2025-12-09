@@ -8,20 +8,20 @@ module contadorrolhas (
     input [6:0] DADOS
 );
     wire [6:0] Xor;
-    reg [6:0] Qcount;  // ← Mudou de wire para reg
+    reg [6:0] Qcount;
     wire [6:0] Qbar;
     wire [6:0] And;
     wire [6:0] Mux;
     wire EnableReal;
-    
+
     assign COUNT = Qcount;
-    
+
     // -------------------------------------------------------
     // 1. FLIP-FLOPS COMPORTAMENTAIS COM VALOR INICIAL
     // -------------------------------------------------------
     always @(posedge CLOCK or posedge RESET) begin
         if (RESET)
-            Qcount <= 7'b1100011;  // ← Carrega 99 no reset!
+            Qcount <= 7'd20;  // ← Carrega 99 no reset!
         else begin
             Qcount[0] <= Mux[0];
             Qcount[1] <= Mux[1];
@@ -32,7 +32,7 @@ module contadorrolhas (
             Qcount[6] <= Mux[6];
         end
     end
-    
+
     // -------------------------------------------------------
     // 2. INVERSORES
     // -------------------------------------------------------
@@ -43,19 +43,19 @@ module contadorrolhas (
     not Not4 (Qbar[4], Qcount[4]);
     not Not5 (Qbar[5], Qcount[5]);
     not Not6 (Qbar[6], Qcount[6]);
-    
+
     // -------------------------------------------------------
     // 3. DETECÇÃO DE ZERO
     // -------------------------------------------------------
     and AndZeroDetect (ZERO, Qbar[0], Qbar[1], Qbar[2], Qbar[3], Qbar[4], Qbar[5], Qbar[6]);
-    
+
     // -------------------------------------------------------
     // 4. LÓGICA DE BLOQUEIO
     // -------------------------------------------------------
     wire notZERO;
     not NotZERO (notZERO, ZERO);
     and AndEnableBlock (EnableReal, ENABLE, notZERO);
-    
+
     // -------------------------------------------------------
     // 5. CADEIA DE EMPRÉSTIMO
     // -------------------------------------------------------
@@ -65,7 +65,7 @@ module contadorrolhas (
     and And3 (And[3], And[2], Qbar[3]);
     and And4 (And[4], And[3], Qbar[4]);
     and And5 (And[5], And[4], Qbar[5]);
-    
+
     // -------------------------------------------------------
     // 6. LÓGICA XOR
     // -------------------------------------------------------
@@ -76,7 +76,7 @@ module contadorrolhas (
     xor Xor4 (Xor[4], Qcount[4], And[3]);
     xor Xor5 (Xor[5], Qcount[5], And[4]);
     xor Xor6 (Xor[6], Qcount[6], And[5]);
-    
+
     // -------------------------------------------------------
     // 7. MULTIPLEXADORES (LOAD vs DECREMENTO)
     // -------------------------------------------------------
@@ -88,4 +88,4 @@ module contadorrolhas (
     multiplexador2x1 MUX5 (.S(Mux[5]), .Sel(LOAD), .A(Xor[5]), .B(DADOS[5])); 
     multiplexador2x1 MUX6 (.S(Mux[6]), .Sel(LOAD), .A(Xor[6]), .B(DADOS[6])); 
 
-endmodule
+    endmodule

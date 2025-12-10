@@ -1,3 +1,7 @@
+// ============================================================================
+// CONTADOR DE ROLHAS DECRESCENTE (99-0) COM CARGA PARARELA
+// ============================================================================
+
 module contadorrolhas (
     output [6:0] COUNT,
     output ZERO,
@@ -87,5 +91,6 @@ module contadorrolhas (
     multiplexador2x1 MUX4 (.S(Mux[4]), .Sel(LOAD), .A(Xor[4]), .B(DADOS[4])); 
     multiplexador2x1 MUX5 (.S(Mux[5]), .Sel(LOAD), .A(Xor[5]), .B(DADOS[5])); 
     multiplexador2x1 MUX6 (.S(Mux[6]), .Sel(LOAD), .A(Xor[6]), .B(DADOS[6])); 
+
 
     endmodule

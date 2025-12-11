@@ -1,5 +1,5 @@
 // ============================================================
-// FSM DE VEDAÇÃO — 2 ESTADOS (MOORE)
+// FSM DE VEDAÇÃO — 2 ESTADOS (MEALY)
 
 // Responsável por detectar quando uma garrafa é vedada e gerar 
 // um pulso para decrementar o estoque de rolhas.
@@ -7,7 +7,7 @@
 
 module fsm_vedacao (
     // Saídas
-    output GARRAFA_VEDADA,       // Indica que a garrafa foi vedada (Moore)
+    output GARRAFA_VEDADA,       // Indica que a garrafa foi vedada (Mealy)
     output DECREMENTA_ROLHA,     // Pulso gerado ao vedar (subtração de estoque)
 
     // Entradas
@@ -26,7 +26,7 @@ module fsm_vedacao (
 
     reg estado_atual, estado_proximo;
     reg estado_anterior;            // Usado para gerar pulso de transição
-    reg flag_vedada;                // Indica vedação (saída de Moore)
+    reg flag_vedada;                // Indica vedação (saída de Mealy)
 
     assign GARRAFA_VEDADA = flag_vedada;
 

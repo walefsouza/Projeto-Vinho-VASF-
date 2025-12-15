@@ -25,19 +25,3 @@ A solução foi implementada na placa de desenvolvimento **DE10-Lite (Intel MAX 
 * **Linguagem:** Verilog HDL (IEEE 1364-2005).
 * **IDE / Síntese:** Quartus Prime Lite Edition.
 * **Simulação:** ModelSim / Waveform Editor.
-
-## 📂 Estrutura do Repositório
-
-```text
-.
-├── src/                  # Códigos fonte em Verilog (.v)
-│   ├── top_level/        # Módulo principal (vinhovasfTOP.v)
-│   ├── fsm/              # Máquinas de Estados (Motor, Enchimento, Vedação, Qualidade)
-│   ├── datapath/         # Contadores e Dispensador
-│   └── utils/            # Divisor de Clock, Debouncers, Conversores BCD
-├── docs/                 # Documentação
-│   └── Relatorio_Tecnico_Final.pdf
-├── presentation/         # Material de Apresentação
-│   └── Slides_Defesa.pdf
-├── simulation/           # Arquivos de simulação e waveforms
-└── README.md
